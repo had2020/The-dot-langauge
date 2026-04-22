@@ -37,9 +37,19 @@ impl AnalogCalculusTrueNumber {
         }
     }
 
+    pub fn truth_into_usize(self) -> usize {
+        let mut r: usize = 0;
+        for i in 0..self.content.len() {
+            r = r.saturating_add(self.content[i] as usize * (10 * i));
+        }
+        r
+    }
+
     pub fn true_add(self, other_truth: AnalogCalculusTrueNumber) -> Self {
         let mut new_self = self;
         for i in 0..new_self.content.len() {
+            if other_truth.content.len() > new_self.content
+
             new_self.content[i] += other_truth.content[i];
             if new_self.content[i] > 9 {
                 new_self.content[i] = 0;
@@ -69,7 +79,11 @@ impl AnalogCalculusTrueNumber {
 #[repr(C, align(128))] // For crypto math, as true mathematicians need math centric code!
 pub struct VirtualRunner {
     pub heap_cells: Vec<AnalogCalculusTrueNumber>,
-    pub program_text: Vec<(ANALOGOPCODES, AnalogCalculusTrueNumber, AnalogCalculusTrueNumber)>,
+    pub program_text: Vec<(
+        ANALOGOPCODES,
+        AnalogCalculusTrueNumber,
+        AnalogCalculusTrueNumber,
+    )>,
     pub not_your_stack: Vec<usize>,
 }
 
@@ -89,29 +103,40 @@ fn main() {
             println!("Computer Daemon: Me and your hardware are done with your slopware!");
             println!("MEET THE PURE DISCRETE ENTROPY SINGULARITY!");
             // TODO infinite randomness
+
+            let mut test_result = AnalogCalculusTrueNumber::create_digit_of_truth(4);
             loop {
-                let test_result = AnalogCalculusTrueNumber::create_digit_of_truth(PI);
-                    .true_add(AnalogCalculusTrueNumber::create_digit_of_truth(PI));
+                test_result =
+                    test_result.true_add(AnalogCalculusTrueNumber::create_digit_of_truth(7));
                 println!("{:?}", test_result);
             }
         }
 
-        let arg0 = virtual_runner.program_text[looping_infinity_pc].1;
-        let arg1 = virtual_runner.program_text[looping_infinity_pc].2;
+        let arg0 = virtual_runner.program_text[looping_infinity_pc].1.clone();
+        let arg1 = virtual_runner.program_text[looping_infinity_pc].2.clone();
+        let arg0_usize = virtual_runner.program_text[looping_infinity_pc]
+            .1
+            .clone()
+            .truth_into_usize()
+            .clone();
+        let arg1_usize = virtual_runner.program_text[looping_infinity_pc]
+            .2
+            .clone()
+            .truth_into_usize()
+            .clone();
 
         match virtual_runner.program_text[looping_infinity_pc].0 {
             ANALOGOPCODES::MOV => {
-                virtual_runner.heap_cells[arg1] = virtual_runner.heap_cells[arg0].clone();
+                virtual_runner.heap_cells[arg1_usize] =
+                    virtual_runner.heap_cells[arg0_usize].clone();
             }
             ANALOGOPCODES::IMM => {
-                virtual_runner.heap_cells[arg0] = AnalogCalculusTrueNumber {
-                    content: vec![arg1 as u8],
-                };
+                virtual_runner.heap_cells[arg0_usize] = arg1;
             }
             ANALOGOPCODES::ADD => {
-                virtual_runner.heap_cells[arg0] = virtual_runner.heap_cells[arg0]
+                virtual_runner.heap_cells[arg0_usize] = virtual_runner.heap_cells[arg0_usize]
                     .clone()
-                    .true_add(virtual_runner.heap_cells[arg1].clone());
+                    .true_add(virtual_runner.heap_cells[arg1_usize].clone());
             }
             ANALOGOPCODES::SUB => {}
             ANALOGOPCODES::MUL => {}
