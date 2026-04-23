@@ -22,18 +22,21 @@ pub enum ANALOGOPCODES {
 #[derive(Debug, Clone)]
 pub struct AnalogCalculusTrueNumber {
     pub content: Vec<u8>, // And no bitpacking base 10 digits, because that's not human readable enough!
+    pub decimal_place: usize,
 }
 
 impl AnalogCalculusTrueNumber {
     pub fn create_new_truth() -> Self {
         AnalogCalculusTrueNumber {
             content: vec![0x00],
+            decimal_place: 0,
         }
     }
 
     pub fn create_digit_of_truth(digit: u8) -> Self {
         AnalogCalculusTrueNumber {
             content: vec![digit],
+            decimal_place: 0,
         }
     }
 
@@ -47,11 +50,16 @@ impl AnalogCalculusTrueNumber {
 
     pub fn true_add(self, other_truth: AnalogCalculusTrueNumber) -> Self {
         let mut new_self = self;
+        let mut other_truth_same_len = other_truth.clone();
         for i in 0..new_self.content.len() {
-            if other_truth.content.len() > new_self.content
+            if other_truth.content.len() < new_self.content.len() {
+                for _ in 0..new_self.content.len() {
+                    other_truth_same_len.content.push(0);
+                }
+            }
 
-            new_self.content[i] += other_truth.content[i];
-            if new_self.content[i] > 9 {
+            new_self.content[i] += other_truth_same_len.content[i];
+            if new_self.content[i] > 10 {
                 new_self.content[i] = 0;
                 // The Analog truth is the truth even if it's the bottleneck!
                 let mut carry_accumulator: usize = 1;
@@ -74,6 +82,11 @@ impl AnalogCalculusTrueNumber {
         }
         new_self
     }
+
+    pub fn true_sub(self, other_truth: AnalogCalculusTrueNumber) -> self {
+        let mut new_self = self;
+        let mut other_truth_same_len = other_truth;
+    }
 }
 
 #[repr(C, align(128))] // For crypto math, as true mathematicians need math centric code!
@@ -95,6 +108,9 @@ fn main() {
         not_your_stack: Vec::new(),
     };
 
+    // testing some temp stuff only
+    let mut test_result = AnalogCalculusTrueNumber::create_digit_of_truth(4);
+
     let mut looping_infinity_pc: usize = 0;
     loop {
         looping_infinity_pc = looping_infinity_pc.wrapping_add(1);
@@ -104,7 +120,6 @@ fn main() {
             println!("MEET THE PURE DISCRETE ENTROPY SINGULARITY!");
             // TODO infinite randomness
 
-            let mut test_result = AnalogCalculusTrueNumber::create_digit_of_truth(4);
             loop {
                 test_result =
                     test_result.true_add(AnalogCalculusTrueNumber::create_digit_of_truth(7));
