@@ -116,9 +116,7 @@ fn main() {
         looping_infinity_pc = looping_infinity_pc.wrapping_add(1);
 
         if looping_infinity_pc > virtual_runner.program_text.len() {
-            println!("Computer Daemon: Me and your hardware are done with your slopware!");
-            println!("MEET THE PURE DISCRETE ENTROPY SINGULARITY!");
-            // TODO infinite randomness
+            // TODO infinite halt
 
             loop {
                 test_result =
